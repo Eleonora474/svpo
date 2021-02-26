@@ -1,6 +1,6 @@
+const sqlite3 = require('sqlite3');
 const electron = require('electron');
 
-require('../src/message-control/main');
 
 const { app } = electron;
 const { BrowserWindow } = electron;
@@ -40,4 +40,15 @@ app.on('activate', () => {
     if (mainWindow === null) {
         createWindow();
     }
+});
+
+const database = new sqlite3.Database('./db.sqlite3', (err) => {
+    if (err) console.error('Database opening error: ', err);
+});
+
+electron.ipcMain.on('asynchronous-message', (event, arg) => {
+    const sql = arg;
+    database.all(sql, (err, rows) => {
+        event.reply('asynchronous-reply', (err && err.message) || rows);
+    });
 });
