@@ -1,54 +1,54 @@
-const sqlite3 = require('sqlite3');
-const electron = require('electron');
+const sqlite3 = require('sqlite3')
+const electron = require('electron')
 
+const { app } = electron
+const { BrowserWindow } = electron
 
-const { app } = electron;
-const { BrowserWindow } = electron;
+const path = require('path')
+const isDev = require('electron-is-dev')
 
-const path = require('path');
-const isDev = require('electron-is-dev');
-
-let mainWindow;
+let mainWindow
 
 function createWindow() {
-    mainWindow = new BrowserWindow({
-        width: 900,
-        height: 680,
-        webPreferences: {
-            nodeIntegration: true,
-        },
-    });
-    mainWindow.loadURL(
-        isDev
-            ? 'http://localhost:3000'
-            : `file://${path.join(__dirname, '../build/index.html')}`
-    );
-    mainWindow.on('closed', () => {
-        mainWindow = null;
-    });
+  mainWindow = new BrowserWindow({
+    width: 900,
+    height: 680,
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    icon: path.join(__dirname, 'logo.ico'),
+  })
+  mainWindow.loadURL(
+    isDev
+      ? 'http://localhost:3000'
+      : `file://${path.join(__dirname, '../build/index.html')}`
+  )
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
 }
 
-app.on('ready', createWindow);
+app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
-});
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
 
 app.on('activate', () => {
-    if (mainWindow === null) {
-        createWindow();
-    }
-});
+  if (mainWindow === null) {
+    createWindow()
+  }
+})
 
 const database = new sqlite3.Database('./db.sqlite3', (err) => {
-    if (err) console.error('Database opening error: ', err);
-});
+  if (err) console.error('Database opening error: ', err)
+})
 
 electron.ipcMain.on('asynchronous-message', (event, arg) => {
-    const sql = arg;
-    database.all(sql, (err, rows) => {
-        event.reply('asynchronous-reply', (err && err.message) || rows);
-    });
-});
+  const sql = arg
+  database.all(sql, (err, rows) => {
+    event.reply('asynchronous-reply', (err && err.message) || rows)
+  })
+})

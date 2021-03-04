@@ -1,8 +1,11 @@
 {
   "name": "svpo",
   "version": "0.1.0",
+  "author": "Eleonora",
   "build": {
-    "appId": "App.app"
+    "win": {
+      "icon": "./build/logo.ico"
+    }
   },
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",

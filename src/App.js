@@ -65,11 +65,19 @@ function App() {
   function saveOperation() {
     const createOp = async () => {
       try {
+        const now = new Date()
         await sendAsync(
           sql.add({
             name: newOperationName,
             date,
             week: getWeekNumber(new Date(date)),
+            time: `${now
+              .getHours()
+              .toString()
+              .padStart(2, 0)}:${now
+              .getMinutes()
+              .toString()
+              .padStart(2, 0)}:${now.getSeconds().toString().padStart(2, 0)}`,
           })
         )
         const operations = await sendAsync(sql.select(date))
@@ -114,19 +122,26 @@ function App() {
           <tr>
             <th>Номер</th>
             <th>Операция</th>
+            <th>Время</th>
           </tr>
           {operationList.map((o) => (
             <tr key={o.id}>
               <td>{o.id}</td>
               <td>{o.name}</td>
+              <td>{o.time}</td>
             </tr>
           ))}
         </table>
       </div>
 
       {isModalOpen && (
-        <div className="modal">
-          <div className="modal-content">
+        <div className="modal" onClick={closeModal}>
+          <div
+            className="modal-content"
+            onClick={(e) => {
+              e.stopPropagation()
+            }}
+          >
             <div className="modal-header">
               <h3>Добавить клиента и операцию</h3>
             </div>
@@ -137,11 +152,11 @@ function App() {
                 onChange={(e) => setNewOperationName(e.target.value)}
                 value={newOperationName}
               />
-              <button className="btn" onClick={closeModal}>
-                Отменить
-              </button>
-              <button className="btn" onClick={saveOperation}>
+              <button className="btn create" onClick={saveOperation}>
                 Создать
+              </button>
+              <button className="btn cancel" onClick={closeModal}>
+                Отменить
               </button>
             </div>
           </div>
